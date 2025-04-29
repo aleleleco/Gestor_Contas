@@ -1,0 +1,108 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Cadastro de Contas{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>{{ title }}</h1>
+
+        <div class="mt-4">
+            <h2>{{ subtitle }}</h2>
+            {% if contas_cadastradas %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nome</th>
+                               
+                                <th>Dia Vencimento</th>
+                                <th>Observações</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for conta in contas_cadastradas %}
+                                <tr>
+                                    <td>{{ conta.nome }}</td>
+                                    <td>{{ conta.data_vencimento }}</td>
+                                    <td>{{ conta.observacoes|default_if_none:"-" }}</td>
+
+                                    <td>
+                                        
+                                            <form method="post" action="{% url 'gestor_contas:altera_status' conta.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="pagina" value="cadastro_conta">
+                                                <input type="hidden" name="tipo" value="conta">
+                                                {% if conta.ativa  %}
+                                                    <button type="submit" class="btn btn-sm btn-warning">Inativar</button>
+                                                {% else %}
+                                                    <button type="submit" class="btn btn-sm btn-success">Ativar</button>
+                                                {% endif %}
+                                            </form>
+                                        
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Não há contas cadastradas.</p>
+            {% endif %}
+
+            {% if contas_embutidas %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nome</th>
+                               
+                                <th>Dia Vencimento</th>
+                                <th>Observações</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for conta in contas_embutidas %}
+                                <tr>
+                                    <td>{{ conta.nome }}</td>
+                                    <td>{{ conta.data_vencimento }}</td>
+                                    <td>{{ conta.observacoes|default_if_none:"-" }}</td>
+
+                                    <td>
+                                        
+                                            <form method="post" action="{% url 'gestor_contas:altera_status' conta.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="pagina" value="cadastro_conta">
+                                                <input type="hidden" name="tipo" value="conta_embutida">
+                                                {% if conta.ativa  %}
+                                                    <button type="submit" class="btn btn-sm btn-warning">Inativar</button>
+                                                {% else %}
+                                                    <button type="submit" class="btn btn-sm btn-success">Ativar</button>
+                                                {% endif %}
+                                            </form>
+                                        
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Não há contas cadastradas.</p>
+            {% endif %}
+
+
+        </div>
+
+        <a href="{% url 'gestor_contas:cadastro_contas' %}" class="btn btn-primary mt-3">Cadastrar Nova Conta</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-4 shadow-sm rounded">
+    <h1>{{ title }}</h1>
+</div>
+{% endblock %}

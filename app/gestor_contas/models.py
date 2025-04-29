@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 class Competencia(models.Model):
     mes = models.IntegerField()
@@ -17,8 +19,10 @@ class Competencia(models.Model):
 
 class Conta(models.Model):
     nome = models.CharField(max_length=255)
-    valor = models.DecimalField(max_digits=10, decimal_places=2)
-    data_vencimento = models.DateField()
+    data_vencimento = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(31)],
+        verbose_name="Dia de Vencimento"  # Opcional: Um nome mais amigável para o campo
+    )
     observacoes = models.TextField(null=True, blank=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
     ativa = models.BooleanField(default=True)
@@ -28,10 +32,16 @@ class Conta(models.Model):
 
 class ContaEmbutida(models.Model):
     nome = models.CharField(max_length=255)
-    data_vencimento = models.DateField()
-    data_pagamento = models.DateField(null=True, blank=True)
+    
+    data_vencimento = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(31)],
+        verbose_name="Dia de Vencimento"  # Opcional: Um nome mais amigável para o campo
+    )
+
     observacoes = models.TextField(null=True, blank=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
+    ativa = models.BooleanField(default=True)
+
 
     def __str__(self):
         return self.nome
@@ -72,3 +82,13 @@ class ContaPaga(models.Model):
 
     def __str__(self):
         return f'Pagamento de R$ {self.valor_pago} em {self.data_pagamento} na competência {self.competencia}'
+    
+
+class Submenu(models.Model):
+    nome = models.CharField(max_length=100)
+    url = models.CharField(max_length=100)
+    icone = models.CharField(max_length=50)
+    pagina = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nome

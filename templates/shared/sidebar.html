@@ -1,8 +1,17 @@
 <div class="list-group">
     <h3 class="mb-2">Menu</h3>
-    <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
-        Cadastros
-    </a>
+    
+    <!-- Item Cadastros com submenu -->
+    <div class="dropdown">
+        <a href="{% url 'gestor_contas:cadastro_conta' %}" class="list-group-item list-group-item-action active">
+            Cadastros
+        </a>
+        <!-- <ul class="dropdown-menu">
+            <li><a class="dropdown-item " href="{% url 'gestor_contas:cadastro_conta' %}">Contas</a></li>
+
+        </ul> -->
+    </div>
+    
     <a href="#" class="list-group-item list-group-item-action">Relatórios</a>
     <a href="#" class="list-group-item list-group-item-action">Pagamentos</a>
 </div>

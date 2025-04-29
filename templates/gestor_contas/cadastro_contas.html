@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>{{ title }}</h1>
+
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    Por favor, corrija os erros abaixo.
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in field.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-danger"
+                    style="background-color: #dc3545; border-color: #dc3545;">Cadastrar</button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,68 @@
+
+body {
+    font-family: sans-serif;
+    background-color: #f8f9fa; /* Cinza claro de fundo */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.top-bar {
+    background-color: #dc3545; /* Vermelho Bootstrap */
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+.user-info {
+    background-color: #e9ecef; /* Cinza bem claro */
+    padding: 0.5rem;
+    text-align: right;
+}
+
+.container-fluid {
+    flex-grow: 1;
+    display: flex;
+}
+
+.sidebar {
+    background-color: #f8f9fa; /* Cinza claro */
+    width: 250px; /* Ajuste a largura conforme necessário */
+    padding: 1rem;
+}
+
+.submenu {
+    background-color: #e9ecef; /* Cinza bem claro */
+    padding: 0.75rem;
+}
+
+.content {
+    flex-grow: 1;
+    padding: 1.5rem;
+}
+
+.footer {
+    background-color: #343a40; /* Cinza escuro Bootstrap */
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important; /* Sombra sutil */
+}
+
+.list-group-item.active {
+    background-color: #dc3545; /* Vermelho ativo */
+    border-color: #dc3545;
+    color: white;
+}
+
+a {
+    text-decoration: none;
+    color: #343a40; /* Cinza escuro para links */
+}
+
+a:hover {
+    color: #dc3545; /* Vermelho no hover */
+}
