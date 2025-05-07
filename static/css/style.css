@@ -32,8 +32,19 @@ body {
 }
 
 .submenu {
-    background-color: #e9ecef; /* Cinza bem claro */
+    background-color: #ffffff; /* Branco por padrão */
     padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.3s ease; /* Adiciona uma transição suave para a mudança de cor */
+}
+
+.submenu:hover {
+    background-color: #d7d9db; /* Cinza bem claro ao passar o mouse */
+}
+
+.submenu.active {
+    background-color: #dc3545; /* Vermelho para o estado ativo (mantido) */
+    padding: 0.75rem; /* Mantém o padding */
 }
 
 .content {
@@ -64,5 +75,5 @@ a {
 }
 
 a:hover {
-    color: #dc3545; /* Vermelho no hover */
+    color: #5c3a3d; /* Vermelho no hover */
 }

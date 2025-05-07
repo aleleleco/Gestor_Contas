@@ -1,0 +1,25 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>{{title}}</h1>
+        <hr>
+        {% for competencia in competencias %}
+        <div class="card mb-3">
+            <div class="card-header" align="center">
+               <a href="{% url 'gestor_contas:contas_mensais' competencia.id %}" class="btn btn-primary">   {{ competencia.mes }}/{{ competencia.ano }}  </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}              

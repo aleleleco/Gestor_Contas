@@ -1,0 +1,54 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-4 shadow-sm rounded">
+    <h1>{{ title }}</h1>
+
+    <h2>{{ subtitle }}</h2>
+    {% if competencias %}
+    <table class="table table-striped">
+        <thead> 
+            <th>Competencia</th>
+            <th>Status</th>
+            <th>Total Pago</th>
+
+        </thead>    
+        {% for competencia in competencias  %}
+        <tr>
+            <td>{{competencia.mes}}/{{ competencia.ano }}</td>
+            <td>
+                <form method="post" action="{% url 'gestor_contas:altera_status' competencia.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="pagina" value="administracao">
+                    <input type="hidden" name="tipo" value="competencia">
+                    {% if competencia.ativa  %}
+                        <button type="submit" class="btn btn-sm btn-warning">Fechar</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-sm btn-success">Abrir  </button>
+                    {% endif %}
+                </form>
+            </td>
+            <td>R$ {{ competencia.total_pago }}</td>
+            <td>
+
+                
+
+            </td>
+
+        </tr>
+        
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

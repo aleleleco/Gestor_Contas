@@ -1,0 +1,57 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>{{title}} - {{competencia.mes}}/{{competencia.ano}}</h1>
+
+        <div class="mt-4">
+            <h2>Contas mensais em Aberto</h2>
+        {% for contas in contas_apagar %}
+            {%if contas.subvalor%}
+                <a href="{% url 'gestor_contas:pagar_conta_subvalor' contas.id competencia.id %}" class="btn btn-success">{{contas.nome}}</a>
+            {% else %}
+                <a href="{% url 'gestor_contas:pagar_conta' contas.id competencia.id %}" class="btn btn-primary">{{contas.nome}}</a>
+            {%endif%}
+        {% endfor %}
+            <h2>Contas exporadicas</h2>
+        {% for contas in contas_exporadicas %}
+            <a href="{% url 'gestor_contas:pagar_conta' contas.id competencia.id %}" class="btn btn-warning">{{contas.nome}}</a>
+            
+        {% endfor %}
+
+
+        {%if contas_pagas %}
+            <h2>Contas Pagas</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Valor</th>
+                        <th>Data Pagamento</th>
+                        <th>Comprovante</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contas in contas_pagas %}
+                            <tr>
+                                <td>{{contas.conta}}</td>
+                                <td>R$ {{contas.valor_pago}}</td>
+                                <td>{{contas.data_pagamento}}</td>
+                                <td>{{contas.comprovante}}</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {%endif%}
+    </div>
+{% endblock %}              

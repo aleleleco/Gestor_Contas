@@ -1,0 +1,42 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>{{title}}</h1>
+        <p>Selecione as competencias que deseja ver:</p>
+        <div class="row">
+            <form action="{% url 'gestor_contas:relatorio_meses' %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    {% for competencia in competencias %}
+                        <div class="col-md-auto">
+                            <input type="checkbox" id="competencia{{ competencia.id }}" name="competencia" value="{{ competencia.id }}">
+                            <label for="competencia{{ competencia.id }}">{{competencia.mes}}/{{ competencia.ano }}</label>&nbsp;&nbsp;
+                        </div>
+
+                    {% endfor %}
+                </div>
+                <div class="col-md-12 mt-3">
+                    <input type="submit" value="Gerar relatório" class="btn btn-primary">
+                </div>
+            </form>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                {% if grafico %}
+                <img src="{{ MEDIA_URL }}{{ grafico }}" alt="Gráfico de linha com média" class="img-fluid">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

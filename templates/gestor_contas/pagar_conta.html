@@ -12,8 +12,8 @@
 
 {% block content %}
     <div class="bg-white p-4 shadow-sm rounded">
-        <h1>{{ title }}</h1>
-
+        <h1>Teste de pagina inicial </h1>
+        <p>Este é o conteúdo principal da página, estilizado com Bootstrap e utilizando as cores definidas.</p>
         <form method="post" class="mt-4">
             {% csrf_token %}
             {% if form.errors %}
@@ -38,9 +38,6 @@
                     {% endif %}
                 </div>
             {% endfor %}
-
-            <button type="submit" class="btn btn-danger"
-                    style="background-color: #dc3545; border-color: #dc3545;">Cadastrar</button>
-        </form>
+            <button type="submit" class="btn btn-danger">Pagar</button>
     </div>
 {% endblock %}

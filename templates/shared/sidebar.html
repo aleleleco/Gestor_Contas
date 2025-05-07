@@ -1,17 +1,25 @@
 <div class="list-group">
     <h3 class="mb-2">Menu</h3>
-    
-    <!-- Item Cadastros com submenu -->
+
     <div class="dropdown">
-        <a href="{% url 'gestor_contas:cadastro_conta' %}" class="list-group-item list-group-item-action active">
+        <a href="{% url 'gestor_contas:cadastro_conta' %}" class="list-group-item list-group-item-action {% if request.path == '/cadastro_conta/' %}active{% endif %}">
             Cadastros
         </a>
-        <!-- <ul class="dropdown-menu">
-            <li><a class="dropdown-item " href="{% url 'gestor_contas:cadastro_conta' %}">Contas</a></li>
-
-        </ul> -->
     </div>
-    
-    <a href="#" class="list-group-item list-group-item-action">Relatórios</a>
-    <a href="#" class="list-group-item list-group-item-action">Pagamentos</a>
+    <div class="dropdown">
+        <a href="{% url 'gestor_contas:administracao' %}" class="list-group-item list-group-item-action {% if request.path == '/administracao/' %}active{% endif %}">
+            administracao
+        </a>
+    </div>
+    <div class="dropdown">
+        <a href="{% url 'gestor_contas:pagamentos' %}" class="list-group-item list-group-item-action {% if request.path == '/pagamentos/' %}active{% endif %}">
+            Pagamentos
+        </a>
+    </div>
+    <div class="dropdown">
+        <a href="{% url 'gestor_contas:relatorios' %}" class="list-group-item list-group-item-action {% if request.path == '/relatorios/' %}active{% endif %}">
+            Relatórios	
+        </a>
+    </div>
+
 </div>

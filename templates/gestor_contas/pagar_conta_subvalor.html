@@ -1,0 +1,132 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Pagar Conta{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-4 shadow-sm rounded">
+    <h1>{{ title }}</h1>
+    <h3>Conta: {{ conta.nome }}</h3>
+    <h4>Competência: {{ competencia }}</h4>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="{{ form.data_pagamento.id_for_label }}">Data de Pagamento:</label>
+                {{ form.data_pagamento }}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.valor_pago.id_for_label }}">Valor Pago:</label>
+                {{ form.valor_pago }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="{{ form.comprovante.id_for_label }}">Comprovante:</label>
+                {{ form.comprovante }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="{{ form.observacoes.id_for_label }}">Observações:</label>
+                {{ form.observacoes }}
+            </div>
+        </div>
+        
+        {% if tem_subvalor %}
+            <h3 class="mt-4">Subvalores</h3>
+            {{ formset.management_form }}
+            
+            <div id="subvalores-container">
+                {% for subvalor_form in formset %}
+                    <div class="subvalor-form mb-3 p-3 border rounded">
+                        {{ subvalor_form.id }}
+                        <div class="row">
+                            <div class="col-md-5">
+                                <label for="{{ subvalor_form.nome.id_for_label }}">Nome:</label>
+                                {{ subvalor_form.nome }}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="{{ subvalor_form.valor.id_for_label }}">Valor:</label>
+                                {{ subvalor_form.valor }}
+                            </div>
+                            <div class="col-md-3">
+                                {% if subvalor_form.instance.pk %}
+                                    <label for="{{ subvalor_form.DELETE.id_for_label }}">Remover:</label>
+                                    {{ subvalor_form.DELETE }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <label for="{{ subvalor_form.observacoes.id_for_label }}">Observações:</label>
+                                {{ subvalor_form.observacoes }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <button type="button" id="add-subvalor" class="btn btn-secondary mb-3">Adicionar Subvalor</button>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Registrar Pagamento</button>
+                <a href="{% url 'gestor_contas:contas_mensais' competencia.id %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% if tem_subvalor %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addButton = document.getElementById('add-subvalor');
+        const container = document.getElementById('subvalores-container');
+        const totalForms = document.getElementById('id_subvalores-TOTAL_FORMS');
+        
+        let formCount = parseInt(totalForms.value);
+        
+        addButton.addEventListener('click', function() {
+            if (formCount < 10) {  // Máximo de 10 subvalores
+                const formRegex = RegExp(`subvalores-(\\d+)-`,'g');
+                const emptyForm = document.querySelector('.subvalor-form').cloneNode(true);
+                
+                // Atualizar os IDs e nomes dos campos
+                emptyForm.innerHTML = emptyForm.innerHTML.replace(formRegex, `subvalores-${formCount}-`);
+                
+                // Limpar os valores dos campos
+                const inputs = emptyForm.querySelectorAll('input[type="text"], input[type="number"], textarea');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+                
+                // Remover o campo DELETE se existir
+                const deleteField = emptyForm.querySelector('input[type="checkbox"]');
+                if (deleteField) {
+                    deleteField.parentElement.parentElement.remove();
+                }
+                
+                container.appendChild(emptyForm);
+                formCount++;
+                totalForms.value = formCount;
+            } else {
+                alert('Você atingiu o limite máximo de 10 subvalores.');
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

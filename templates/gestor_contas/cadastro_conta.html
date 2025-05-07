@@ -25,7 +25,8 @@
                                
                                 <th>Dia Vencimento</th>
                                 <th>Observações</th>
-                                <th>Ações</th>
+                                <th>Despesa Mensal</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -34,7 +35,7 @@
                                     <td>{{ conta.nome }}</td>
                                     <td>{{ conta.data_vencimento }}</td>
                                     <td>{{ conta.observacoes|default_if_none:"-" }}</td>
-
+                                    <td>{% if conta.mensal %}Mensal{%else%}Exporádica{%endif%}</td>   
                                     <td>
                                         
                                             <form method="post" action="{% url 'gestor_contas:altera_status' conta.id %}" style="display: inline;">
@@ -42,7 +43,7 @@
                                                 <input type="hidden" name="pagina" value="cadastro_conta">
                                                 <input type="hidden" name="tipo" value="conta">
                                                 {% if conta.ativa  %}
-                                                    <button type="submit" class="btn btn-sm btn-warning">Inativar</button>
+                                                    <button type="submit" class="btn btn-sm btn-danger">Inativar</button>
                                                 {% else %}
                                                     <button type="submit" class="btn btn-sm btn-success">Ativar</button>
                                                 {% endif %}
