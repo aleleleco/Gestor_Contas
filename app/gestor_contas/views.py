@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .utils import geraSubMenu, atualiza_valores_competencia, grafico_linhas_com_media, grafico_pizza
 from .forms import ContaForm, CompetenciForm, pagar_conta_form, PagarContaComSubvaloresForm, SubvaloresFormSet
-from .models import Conta, Competencia, ContaPaga
+from .models import Conta, Competencia, ContaPaga, Subvalores
 from django.contrib import messages
 from django.urls import reverse
 import datetime
@@ -73,7 +73,12 @@ def pagar_conta_subvalor(request, conta_id, competencia_id):
                 pagamento.save()
                 
                 # Salvar os subvalores
-                formset.save()
+                try:
+                    formset.save()
+                except Exception as e:
+                    messages.error(request, f'Erro ao salvar os subvalores: {str(e)}')
+                    return redirect('gestor_contas:pagar_conta_subvalor', conta_id=conta_id, competencia_id=competencia_id)
+                
                 
                 messages.success(request, 'Pagamento registrado com sucesso!')
                 return redirect('gestor_contas:contas_mensais', id=competencia_id)
@@ -149,6 +154,51 @@ def pagar_conta(request, conta_id,  competencia_id):
 
     return render(request, 'gestor_contas/pagar_conta.html', context)
 
+def editar_conta_pagar(request, conta_id, competencia_id):
+    conta_paga = get_object_or_404(ContaPaga, id=conta_id)
+    competencia = get_object_or_404(Competencia, id=competencia_id)
+
+
+    if conta_paga.conta.subvalor:
+
+        form = PagarContaComSubvaloresForm(conta=conta_paga.conta, competencia=competencia, initial={
+            'data_pagamento': datetime.date.today(), 'valor_pago': conta_paga.valor_pago, 'observacoes': conta_paga.observacoes
+        })
+
+        subvalores = Subvalores.objects.filter(conta=conta_paga.conta)
+
+        if subvalores:
+            formset = SubvaloresFormSet(initial={'nome': [subvalor.nome for subvalor in subvalores], 'valor': [subvalor.valor for subvalor in subvalores]})
+        else:
+            formset = None
+    
+        context = {
+            'submenu': geraSubMenu('pagamentos'),
+            'title': 'Pagar Conta',
+            'conta': conta_paga.conta,
+            'competencia': competencia,
+            'form': form,
+            'formset': formset,
+            'tem_subvalor': conta_paga.conta.subvalor
+        }
+        return render(request, 'gestor_contas/pagar_conta_subvalor.html', context)
+    else:
+
+        form = pagar_conta_form(instance=conta_paga)
+        conta = conta_paga.conta
+
+        context = {
+        'submenu': geraSubMenu('pagamentos'),
+        'title': 'Pagar Conta',
+        'conta': conta,
+        'competencia': competencia,
+        'form' : form,
+    }
+
+        return render(request, 'gestor_contas/pagar_conta.html', context)
+
+
+    
 
 
 def contasadmin(request):
@@ -264,6 +314,9 @@ def cadastro_contas(request):
         return render(request, 'gestor_contas/cadastro_contas.html', context)
 
 def relatorios(request):
+
+    atualiza_valores_competencia()
+
     context = {
         'submenu': geraSubMenu('relatorios'),
         'title': 'Relatórios',

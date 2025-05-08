@@ -39,6 +39,7 @@
                         <th>Valor</th>
                         <th>Data Pagamento</th>
                         <th>Comprovante</th>
+                        <th>Editar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,6 +49,7 @@
                                 <td>R$ {{contas.valor_pago}}</td>
                                 <td>{{contas.data_pagamento}}</td>
                                 <td>{{contas.comprovante}}</td>
+                                <td><a href="{% url 'gestor_contas:editar_conta_pagar' contas.id competencia.id %}" class="btn btn-success">Editar</a></td>
                             </tr>
                     {% endfor %}
                 </tbody>

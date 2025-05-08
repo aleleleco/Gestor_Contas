@@ -23,6 +23,7 @@ urlpatterns = [
     path('pagar_conta_subvalor/<int:conta_id>/<int:competencia_id>/', views.pagar_conta_subvalor, name='pagar_conta_subvalor'),
     path('relatorios/', views.relatorios, name='relatorios'),
     path('relatorio_meses/', views.relatorio_meses, name='relatorio_meses'),
+    path('editar_conta_pagar/<int:conta_id>/<int:competencia_id>', views.editar_conta_pagar, name='editar_conta_pagar'),
 
     
     
