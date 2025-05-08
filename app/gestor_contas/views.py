@@ -93,7 +93,7 @@ def pagar_conta_subvalor(request, conta_id, competencia_id):
         
         # Se a conta tiver a opção de subvalor ativada, criar o formset
         if conta.subvalor:
-            formset = SubvaloresFormSet(instance=conta)
+            formset = SubvaloresFormSet()
         else:
             formset = None
     
