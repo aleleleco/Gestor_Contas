@@ -2,6 +2,15 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
+class Parcelamento(models.Model):
+    parcelas_totais = models.IntegerField()
+    parcela_nr = models.IntegerField()
+    valor_pago = models.DecimalField(max_digits=12, decimal_places=2)
+    valor_total = models.DecimalField(max_digits=12, decimal_places=2)
+    conta_id = models.ForeignKey('Conta', on_delete=models.CASCADE)
+    conta_paga_id = models.ForeignKey('ContaPaga', on_delete=models.CASCADE)
+    
+
 class Competencia(models.Model):
     MESES_DO_ANO = [
         ('1', 'Janeiro'),
@@ -41,6 +50,9 @@ class Conta(models.Model):
     ativa = models.BooleanField(default=True)
     mensal = models.BooleanField(default=False)
     subvalor = models.BooleanField(default=False)
+    parcelas = models.BooleanField(default=False)
+    qtd_parcelas = models.IntegerField(null=True, blank=True)
+    valor_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
 
 
     def __str__(self):

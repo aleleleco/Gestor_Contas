@@ -28,6 +28,10 @@
             <a href="{% url 'gestor_contas:pagar_conta' contas.id competencia.id %}" class="btn btn-warning">{{contas.nome}}</a>
             
         {% endfor %}
+            <h2>Contas Parceladas</h2>
+        {% for contas in contas_parceladas %}
+            <a href="{% url 'gestor_contas:pagar_conta' contas.id competencia.id %}" class="btn btn-danger">{{contas.nome}}</a>            
+        {% endfor %}
 
 
         {%if contas_pagas %}

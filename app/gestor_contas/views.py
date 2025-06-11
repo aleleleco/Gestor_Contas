@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .utils import geraSubMenu, atualiza_valores_competencia, grafico_linhas_com_media, grafico_barras_com_media, grafico_pizza, salvar_comprovante_externo
+from .utils import geraSubMenu, atualiza_valores_competencia, grafico_linhas_com_media, grafico_barras_com_media, grafico_pizza, salvar_comprovante_externo, gera_parcelas
+                    
 from .forms import ContaForm, CompetenciForm, pagar_conta_form, PagarContaComSubvaloresForm, SubvaloresFormSet
 from .models import Conta, Competencia, ContaPaga, Subvalores
 from django.contrib import messages
@@ -45,7 +46,8 @@ def contas_mensais(request, id):
     competencia = Competencia.objects.get(id=id)
     contas_pagas = ContaPaga.objects.filter(competencia=competencia)
     contas_apagar = Conta.objects.filter(mensal=True, ativa=True).exclude(id__in=contas_pagas.values_list('conta', flat=True))
-    contas_exporadicas = Conta.objects.filter(mensal=False, ativa=True)
+    contas_exporadicas = Conta.objects.filter(mensal=False, ativa=True, parcelas=False)
+    contas_parceladas = Conta.objects.filter(ativa=True, parcelas=True)
 
     context = {
         'submenu': geraSubMenu('pagamentos'),
@@ -53,7 +55,8 @@ def contas_mensais(request, id):
         'competencia':competencia,
         'contas_apagar':   contas_apagar,
         'contas_pagas': contas_pagas,
-        'contas_exporadicas': contas_exporadicas
+        'contas_exporadicas': contas_exporadicas,
+        'contas_parceladas': contas_parceladas,
     }
     return render(request, 'gestor_contas/contas_mensais.html', context)
 
@@ -180,15 +183,25 @@ def pagar_conta(request, conta_id,  competencia_id, ):
                     logger.info(f'Não recebeu o comprovante')
                     conta_paga.save()
 
+                # retirado pois acho que ta pagando com ou sem validaçao de comprovante
+                # conta_paga.conta = conta
+                # conta_paga.competencia = competencia
+                # conta_paga.save()
+                
+                if conta.parcelas:
+                    parcela_paga = gera_parcelas(conta_paga)
+                    if parcela_paga:
+                        messages.success(request, 'Conta paga com sucesso! - Parcela atualizada com sucesso!')
+                        logger.info(f'Conta paga com sucesso! - NParcela atualizada com sucesso!')
+                    else:
+                        messages.success(request, 'Conta paga com sucesso! - Não foi possivel atualizar parcela veja log de erro')
+                        logger.info(f'Conta paga com sucesso! - Não foi possivel atualizar parcela veja log de erro')
+                else:
+                    messages.success(request, 'Conta paga com sucesso!')
+                    logger.info(f'conta salva')
 
-                conta_paga.conta = conta
-                conta_paga.competencia = competencia
-                
-                conta_paga.save()
-                
-                messages.success(request, 'Conta paga com sucesso!')
-                logger.info(f'conta salva')
                 return redirect('gestor_contas:contas_mensais', id=competencia_id)
+          
             except Exception as e:
                 logger.error(f'Erro ao salvar a conta paga: {str(e)}')
                 messages.error(request, f'Erro ao salvar a conta paga: {str(e)}')
@@ -346,7 +359,29 @@ def cadastro_contas(request):
         form = ContaForm(request.POST)
         if form.is_valid():
             nome_conta = form.cleaned_data['nome'].lower()  # Converter para minúsculas
-           
+            
+            if form.cleaned_data['parcelas']:
+                if form.cleaned_data['mensal'] or form.cleaned_data['subvalor']:
+                    messages.error(request, 'Uma conta Parcelada não pode ser Mensal ou ter Subvalor ao mesmo tempo.')
+                    context = {
+                        'submenu': geraSubMenu('cadastro'),
+                        'title': 'Cadastro de Contas',
+                        'form': form,
+                        'contas_cadastradas': contas_cadastradas,
+                    }
+                    return render(request, 'gestor_contas/cadastro_contas.html', context)
+                else:
+                    if form.cleaned_data['qtd_parcelas'] <= 1 or form.cleaned_data['valor_total'] < 0:
+                        messages.error(request, 'A quantidade de parcelas deve ser maior que 1 e o valor total deve ser maior que 0.')
+                        context = {
+                            'submenu': geraSubMenu('cadastro'),
+                            'title': 'Cadastro de Contas',
+                            'form': form,
+                            'contas_cadastradas': contas_cadastradas,
+                        }
+                        return render(request, 'gestor_contas/cadastro_contas.html', context)
+
+
             if Conta.objects.filter(nome=nome_conta, ativa=True).exists():
                 messages.error(request, 'Já existe uma conta ativa com este nome.')
                 context = {
@@ -448,7 +483,6 @@ def consultas_pagamentos(request):
         'title': 'Consultas',
     }
     return render(request, 'gestor_contas/consultas.html', context)
-
 
 def relatorio_contas(request):
     

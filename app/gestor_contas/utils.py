@@ -1,4 +1,4 @@
-from .models import Submenu, Competencia, ContaPaga
+from .models import Submenu, Competencia, ContaPaga, Parcelamento
 import matplotlib.pyplot as plt
 import os
 from django.conf import settings
@@ -218,3 +218,25 @@ def salvar_comprovante_externo(data_pagamento, comprovante_file):
     except Exception as e:
         logger.error(f"Erro inesperado ao salvar o arquivo: {e}")
         return None
+    
+def gera_parcelas(conta_paga):
+    parcelas_pagas = Parcelamento.objects.filter(conta_id = conta_paga.conta)
+    parcela = Parcelamento()
+
+    if parcelas_pagas.count() >= 1:
+        parcela.parcela_nr = parcelas_pagas.count() + 1
+    else:
+        parcela.parcela_nr = 1
+
+    parcela.parcelas_totais = conta_paga.conta.qtd_parcelas
+    parcela.valor_pago = conta_paga.valor_pago
+    parcela.valor_total = conta_paga.conta.valor_total
+    parcela.conta_id = conta_paga.conta
+    parcela.conta_paga_id = conta_paga
+
+    try:
+        parcela.save()
+        return True
+    except Exception as e:
+        logger.error(f"Erro ao salvar a parcela: {e}")
+        return False

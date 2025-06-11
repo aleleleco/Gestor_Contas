@@ -14,13 +14,17 @@ class ContaForm(forms.ModelForm):
 
     class Meta:
         model = Conta
-        fields = ['nome', 'data_vencimento', 'observacoes', 'ativa', 'mensal', 'subvalor']
+        fields = ['nome', 'data_vencimento', 'observacoes', 'ativa', 'mensal', 'subvalor', 'parcelas', 'qtd_parcelas', 'valor_total']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control', 'style': 'border-color: #ced4da; box-shadow: none;'}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'style': 'border-color: #ced4da; box-shadow: none;'}),
             'ativa': forms.CheckboxInput(attrs={'class': 'form-check-input', 'style': 'border-color: #ced4da; box-shadow: none;'}),
             'mensal': forms.CheckboxInput(attrs={'class': 'form-check-input', 'style': 'border-color: #ced4da; box-shadow: none;'}),
-            'subvalor': forms.CheckboxInput(attrs={'class': 'form-check-input', 'style': 'border-color: #ced4da; box-shadow: none;'}),                    
+            'subvalor': forms.CheckboxInput(attrs={'class': 'form-check-input', 'style': 'border-color: #ced4da; box-shadow: none;'}),
+            'parcelas': forms.CheckboxInput(attrs={'class': 'form-check-input', 'style': 'border-color: #ced4da; box-shadow: none;'}),
+            'qtd_parcelas': forms.NumberInput(attrs={'class': 'form-control', 'style': 'border-color: #ced4da; box-shadow: none;'}),
+            'valor_total': forms.NumberInput(attrs={'class': 'form-control', 'style': 'border-color: #ced4da; box-shadow: none;'}),
+
         }
 
     def __init__(self, *args, **kwargs):
