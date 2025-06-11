@@ -16,6 +16,11 @@
             Pagamentos
         </a>
     </div>
+        <div class="dropdown">
+        <a href="{% url 'gestor_contas:consultas' %}" class="list-group-item list-group-item-action {% if request.path == '/consultas/' %}active{% endif %}">
+            Consultas
+        </a>
+    </div>
     <div class="dropdown">
         <a href="{% url 'gestor_contas:relatorios' %}" class="list-group-item list-group-item-action {% if request.path == '/relatorios/' %}active{% endif %}">
             Relatórios	

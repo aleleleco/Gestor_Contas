@@ -14,7 +14,7 @@
     <div class="bg-white p-4 shadow-sm rounded">
         <h1>Teste de pagina inicial </h1>
         <p>Este é o conteúdo principal da página, estilizado com Bootstrap e utilizando as cores definidas.</p>
-        <form method="post" class="mt-4">
+        <form method="post" class="mt-4" enctype="multipart/form-data">
             {% csrf_token %}
             {% if form.errors %}
                 <div class="alert alert-danger">

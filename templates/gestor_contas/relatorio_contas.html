@@ -1,0 +1,43 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>{{title}}</h1>
+        <p>Selecione as competencias que deseja ver:</p>
+        <div class="row">
+            <form action="{% url 'gestor_contas:relatorio_contas' %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    {% for conta in contas %}
+                        <div class="col-md-auto">
+                            <input type="radio" id="conta{{ conta.id }}" name="conta" value="{{ conta.id }}">
+                            <label for="conta{{ conta.id }}">{{conta.nome }}</label>&nbsp;&nbsp;
+                        </div>
+
+                    {% endfor %}
+                </div>
+                <div class="col-md-12 mt-3">
+                    <input type="submit" value="Gerar relatório" class="btn btn-primary">
+                </div>
+            </form>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                {% if subtitle %}<h2>{{subtitle}}</h2>{% endif %}
+                {% if grafico %}
+                <img src="{{ MEDIA_URL }}{{ grafico }}" alt="Gráfico de linha com média" class="img-fluid">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

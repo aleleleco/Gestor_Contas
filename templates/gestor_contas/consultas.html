@@ -1,0 +1,19 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>Teste de pagina inicial </h1>
+        <p>Este é o conteúdo principal da página, estilizado com Bootstrap e utilizando as cores definidas.</p>
+        <button class="btn btn-primary">Ação Primária</button>
+    </div>
+{% endblock %}

@@ -1,0 +1,12 @@
+INFO 2025-06-10 11:31:06,300 autoreload 5632 3620 Watching for file changes with StatReloader
+INFO 2025-06-10 11:31:13,050 basehttp 5632 8276 "GET /pagamentos/ HTTP/1.1" 200 3470
+INFO 2025-06-10 11:31:14,804 basehttp 5632 8276 "GET /contas_mensais/15 HTTP/1.1" 200 5657
+INFO 2025-06-10 11:31:17,728 views 5632 8276 Pagamento de contas
+INFO 2025-06-10 11:31:17,743 basehttp 5632 8276 "GET /pagar_conta/38/15/ HTTP/1.1" 200 5975
+INFO 2025-06-10 11:31:35,779 views 5632 8276 Pagamento de contas
+INFO 2025-06-10 11:31:35,779 views 5632 8276 Recebe dados do formulário
+INFO 2025-06-10 11:31:35,783 views 5632 8276 Formulario valido
+INFO 2025-06-10 11:31:35,783 views 5632 8276 Salvando conta paga
+INFO 2025-06-10 11:31:35,910 views 5632 8276 conta salva
+INFO 2025-06-10 11:31:35,912 basehttp 5632 8276 "POST /pagar_conta/38/15/ HTTP/1.1" 302 0
+INFO 2025-06-10 11:31:35,920 basehttp 5632 8276 "GET /contas_mensais/15 HTTP/1.1" 200 6331

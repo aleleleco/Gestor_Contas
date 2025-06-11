@@ -11,8 +11,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 import os
 
+load_dotenv()
+
+COMPROVANTES_BASE_DIR = os.getenv('COMPROVANTES_BASE_DIR')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -135,3 +139,56 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+PATH_LOG = os.getenv('PATH_LOG', 'logs') 
+NIVEL_LOG = os.getenv('NIVEL_LOG', 'DEBUG')
+LOG_DIR = os.path.join(BASE_DIR, PATH_LOG.strip('/'))
+os.makedirs(LOG_DIR, exist_ok=True)
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': NIVEL_LOG,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'django.log'), # Use LOG_DIR aqui
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': NIVEL_LOG,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': NIVEL_LOG,
+            'propagate': False,
+        },
+        'app': {
+            'handlers': ['file', 'console'],
+            'level': NIVEL_LOG,
+            'propagate': False,
+        },
+    },
+    'root': {
+        'handlers': ['file', 'console'],
+        'level': NIVEL_LOG, # Garanta que o nível do root logger também esteja definido
+    },
+}
