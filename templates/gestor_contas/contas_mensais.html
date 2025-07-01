@@ -52,7 +52,7 @@
                                 <td>{{contas.conta}}</td>
                                 <td>R$ {{contas.valor_pago}}</td>
                                 <td>{{contas.data_pagamento}}</td>
-                                <td>{{contas.comprovante}}</td>
+                                <td><a href="gestor_contas:servir_comprovante" class="btn btn-success" target="_blank">Comprovante</a></td>
                                 <td><a href="{% url 'gestor_contas:editar_conta_pagar' contas.id competencia.id %}" class="btn btn-success">Editar</a></td>
                             </tr>
                     {% endfor %}

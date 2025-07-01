@@ -25,10 +25,12 @@ urlpatterns = [
     path('relatorio_contas/', views.relatorio_contas, name='relatorio_contas'),
     path('relatorio_competencia/', views.relatorio_competencia, name='relatorio_competencia'),
     path('editar_conta_pagar/<int:conta_id>/<int:competencia_id>', views.editar_conta_pagar, name='editar_conta_pagar'),
-    path('consultas/', views.consultas, name='consultas'),
-    path('consultas_contas/', views.consultas_contas, name='consultas_contas'),	
-    path('consultas_competencias/', views.consultas_competencias, name='consultas_competencias'),
-    path('consultas_pagamentos/', views.consultas_pagamentos, name='consultas_pagamentos'),
+    path('contas_pagas/', views.contas_pagas, name='contas_pagas'),
+    path('cadastra_tag/', views.cadastra_tag, name='cadastra_tag'),
+    path('gastos_gerais/', views.gastos_gerais, name='gastos_gerais'),
+    path('gastos_gerais_relat/', views.gastos_gerais_relat, name='gastos_gerais_relat'),
+
+
 ]
 
 if settings.DEBUG:

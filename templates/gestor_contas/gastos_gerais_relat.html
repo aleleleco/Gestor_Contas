@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>{{title}}</h1>
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <select name="tag" class="form-control">
+                <option value="">Selecione a tag</option>
+                {% for tag in tags %}
+                <option value="{{ tag.id }}">{{ tag.nome }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="competencia" class="form-control">
+                <option value="">Selecione a competência</option>
+                {% for competencia in competencias %}
+                <option value="{{ competencia.id }}">{{ competencia }}</option>
+                {% endfor %}
+            </select>   
+
+            <select name="pessoa" class="form-control">
+                <option value="">Selecione a Pessoa</option>
+                {% for pessoa in pessoas %}
+                <option value="{{ pessoa.id }}">{{ pessoa }}</option>
+                {% endfor %}
+            </select>   
+
+
+            <button type="submit" class="btn btn-danger">Bauscar</button>
+        </form>
+        {%if gastos_gerais%}
+        <div class="table-responsive">
+            <h3>Total Gasto R$ {{total}}</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Tag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gasto in gastos_gerais %}
+                    <tr>
+                        <td>{{ gasto.data_compra }}</td>
+                        <td>{{ gasto.observacoes }}</td>
+                        <td>{{ gasto.valor }}</td>
+                        <td>{{ gasto.tag.nome}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {%endif%}
+
+        {% if grafico %}
+                <img src="{{ MEDIA_URL }}{{ grafico }}" alt="Gráfico de linha com média" class="img-fluid">
+                {% endif %}
+
+    </div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block sidebar %}
+    {% include 'shared/sidebar.html' %}
+{% endblock %}
+
+{% block submenu %}
+    {% include 'shared/submenu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h1>{{title}}</h1>
+        <p>Consulta contas</p>
+        
+        <p>Selecione as Contas que deseja ver:</p>
+        <div class="row">
+            <form action="{% url 'gestor_contas:consultas_pagamentos' %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    {% for conta in contas %}
+                        <div class="col-md-auto">
+                            <input type="radio" id="conta{{ conta.id }}" name="conta" value="{{ conta.id }}">
+                            <label for="conta{{ conta.id }}">{{conta.nome }}</label>&nbsp;&nbsp;
+                        </div>
+
+                    {% endfor %}
+                </div>
+                <div class="col-md-12 mt-3">
+                    <input type="submit" value="Gerar relatório" class="btn btn-primary">
+                </div>
+            </form>
+
+
+            {% if contas_pagas %}
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>Competencia</th>
+                        <th>Conta</th>
+                        <th>Valor</th>
+                        <th>Data de pagamento</th>
+                        <th>Parcela</th>                        
+                        <th>observacoes</th>
+                        <th>Data Registro</th>
+                        <th>Comprovante</th>
+                        
+                        
+                    </tr>
+                </thead>    
+                <tbody>
+                    {% for conta in contas_pagas %}
+                    <tr>
+                        <td>{{conta.competencia}}</td>
+                        <td>{{conta.conta.nome}}</td>
+                        <td>{{conta.valor_pago}}</td>
+                        <td>{{conta.data_pagamento}}</td>
+                        <td>
+                            {%if parcelas %}
+                            <table  border="1" align="center">
+                                <th>Quantidade</th>
+                                <th>Valor total</th>
+                                <tr>
+                                    <td>{% for parcela in parcelas %}
+                                        {% if parcela.conta_paga_id == conta %}
+                                            {{parcela.parcela_nr}}/{{parcela.parcelas_totais}}
+                                        {% endif %}
+                                    {% endfor %}</td>
+                                    <td>{% for parcela in parcelas %}
+                                        {% if parcela.conta_paga_id == conta %}
+                                            {{parcela.valor_total}}
+                                        {% endif %}
+                                    {% endfor %}</td>
+                                </tr>
+                            </table>
+                                    
+                            {%else%}
+                                Sem Parcelamento
+                            {% endif %}
+                        </td>                        
+                        <td>{{conta.observacoes}}</td>
+                        <td>{{conta.data_registro}}</td>
+                        <td><a href="{{ MEDIA_URL }}{{ conta.comprovante }}" class="btn button">Comprovante</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+            {%else%}
+                Sem dados selecionados
+            {% endif %}
+
+
+        </div>
+
+
+    </div>
+{% endblock %}
