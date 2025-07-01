@@ -4,8 +4,6 @@
         {% for item in submenu %}
         <li class="nav-item">
             {% url item.url as submenu_url %}
-            <!-- <a class="list-group-item list-group-item-action {% if request.path == submenu_url %}active{% endif %}"
-                aria-current="page" href="{{ submenu_url }}">{{ item.nome }}</a> -->
                 <a class="submenu {% if request.path == submenu_url %}active{% endif %}"
                 aria-current="page" href="{{ submenu_url }}">{{ item.nome }}</a>
         </li>

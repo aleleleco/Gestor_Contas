@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .utils import geraSubMenu, atualiza_valores_competencia, grafico_linhas_com_media, grafico_barras_com_media, grafico_pizza, salvar_comprovante_externo
-from .forms import ContaForm, CompetenciForm, pagar_conta_form, PagarContaComSubvaloresForm, SubvaloresFormSet
-from .models import Conta, Competencia, ContaPaga, Subvalores
+from .utils import geraSubMenu, atualiza_valores_competencia, grafico_linhas_com_media, grafico_barras_com_media, grafico_pizza, salvar_comprovante_externo, gera_parcelas
+                    
+from .forms import ContaForm, CompetenciForm, pagar_conta_form, PagarContaComSubvaloresForm, SubvaloresFormSet, TagsForm, GastosGeraisForm
+from .models import Conta, Competencia, ContaPaga, Subvalores, Parcelamento, Pessoa, Tags, GastosGerais
 from django.contrib import messages
 from django.urls import reverse
 import datetime
@@ -45,7 +46,8 @@ def contas_mensais(request, id):
     competencia = Competencia.objects.get(id=id)
     contas_pagas = ContaPaga.objects.filter(competencia=competencia)
     contas_apagar = Conta.objects.filter(mensal=True, ativa=True).exclude(id__in=contas_pagas.values_list('conta', flat=True))
-    contas_exporadicas = Conta.objects.filter(mensal=False, ativa=True)
+    contas_exporadicas = Conta.objects.filter(mensal=False, ativa=True, parcelas=False)
+    contas_parceladas = Conta.objects.filter(ativa=True, parcelas=True)
 
     context = {
         'submenu': geraSubMenu('pagamentos'),
@@ -53,7 +55,8 @@ def contas_mensais(request, id):
         'competencia':competencia,
         'contas_apagar':   contas_apagar,
         'contas_pagas': contas_pagas,
-        'contas_exporadicas': contas_exporadicas
+        'contas_exporadicas': contas_exporadicas,
+        'contas_parceladas': contas_parceladas,
     }
     return render(request, 'gestor_contas/contas_mensais.html', context)
 
@@ -180,15 +183,25 @@ def pagar_conta(request, conta_id,  competencia_id, ):
                     logger.info(f'Não recebeu o comprovante')
                     conta_paga.save()
 
+                # retirado pois acho que ta pagando com ou sem validaçao de comprovante
+                # conta_paga.conta = conta
+                # conta_paga.competencia = competencia
+                # conta_paga.save()
+                
+                if conta.parcelas:
+                    parcela_paga = gera_parcelas(conta_paga)
+                    if parcela_paga:
+                        messages.success(request, 'Conta paga com sucesso! - Parcela atualizada com sucesso!')
+                        logger.info(f'Conta paga com sucesso! - NParcela atualizada com sucesso!')
+                    else:
+                        messages.success(request, 'Conta paga com sucesso! - Não foi possivel atualizar parcela veja log de erro')
+                        logger.info(f'Conta paga com sucesso! - Não foi possivel atualizar parcela veja log de erro')
+                else:
+                    messages.success(request, 'Conta paga com sucesso!')
+                    logger.info(f'conta salva')
 
-                conta_paga.conta = conta
-                conta_paga.competencia = competencia
-                
-                conta_paga.save()
-                
-                messages.success(request, 'Conta paga com sucesso!')
-                logger.info(f'conta salva')
                 return redirect('gestor_contas:contas_mensais', id=competencia_id)
+          
             except Exception as e:
                 logger.error(f'Erro ao salvar a conta paga: {str(e)}')
                 messages.error(request, f'Erro ao salvar a conta paga: {str(e)}')
@@ -346,7 +359,29 @@ def cadastro_contas(request):
         form = ContaForm(request.POST)
         if form.is_valid():
             nome_conta = form.cleaned_data['nome'].lower()  # Converter para minúsculas
-           
+            
+            if form.cleaned_data['parcelas']:
+                if form.cleaned_data['mensal'] or form.cleaned_data['subvalor']:
+                    messages.error(request, 'Uma conta Parcelada não pode ser Mensal ou ter Subvalor ao mesmo tempo.')
+                    context = {
+                        'submenu': geraSubMenu('cadastro'),
+                        'title': 'Cadastro de Contas',
+                        'form': form,
+                        'contas_cadastradas': contas_cadastradas,
+                    }
+                    return render(request, 'gestor_contas/cadastro_contas.html', context)
+                else:
+                    if form.cleaned_data['qtd_parcelas'] <= 1 or form.cleaned_data['valor_total'] < 0:
+                        messages.error(request, 'A quantidade de parcelas deve ser maior que 1 e o valor total deve ser maior que 0.')
+                        context = {
+                            'submenu': geraSubMenu('cadastro'),
+                            'title': 'Cadastro de Contas',
+                            'form': form,
+                            'contas_cadastradas': contas_cadastradas,
+                        }
+                        return render(request, 'gestor_contas/cadastro_contas.html', context)
+
+
             if Conta.objects.filter(nome=nome_conta, ativa=True).exists():
                 messages.error(request, 'Já existe uma conta ativa com este nome.')
                 context = {
@@ -418,38 +453,6 @@ def relatorio_meses(request):
     }
     return render(request, 'gestor_contas/relatorio_meses.html', context)
 
-def consultas(request):
-    context = {
-        'submenu': geraSubMenu('consultas'),
-        'title': 'Consultas',
-    }
-
-    print(context)
-
-    return render(request, 'gestor_contas/consultas.html', context)
-
-def consultas_contas(request):
-    context = {
-        'submenu': geraSubMenu('consultas'),
-        'title': 'Consultas',
-    }
-    return render(request, 'gestor_contas/consultas.html', context)
-
-def consultas_competencias(request):
-    context = {
-        'submenu': geraSubMenu('consultas'),
-        'title': 'Consultas',
-    }
-    return render(request, 'gestor_contas/consultas.html', context)
-
-def consultas_pagamentos(request):
-    context = {
-        'submenu': geraSubMenu('consultas'),
-        'title': 'Consultas',
-    }
-    return render(request, 'gestor_contas/consultas.html', context)
-
-
 def relatorio_contas(request):
     
     if request.method == 'POST':
@@ -497,9 +500,28 @@ def relatorio_competencia(request):
             itens.append(f'{conta_paga.conta.nome.upper()}')
             valores.append(conta_paga.valor_pago)
     
-        subtitulo = False
 
-        grafico = grafico_pizza(valores, itens, 'Nome da Competencia')
+    #a somar os valores dos gastos de gerais e tirar o que nao e de credito
+        gastos_gerais = GastosGerais.objects.filter(competencia=competencia, contabiliza=True)
+        if gastos_gerais:
+            total_geral = 0
+            for gasto_geral in gastos_gerais:
+                total_geral +=  gasto_geral.valor
+            print(total_geral)
+            
+            valores.append(total_geral)
+            itens.append('Gastos Gerais')
+
+
+
+        subtitulo = False
+        titulo = ''
+        for competencia in competencias:
+            titulo = f'Relatório da competencia {competencia.mes}/{competencia.ano}'
+            subtitulo = f'Contas pagas da competencia {competencia.mes}/{competencia.ano}'
+       
+
+        grafico = grafico_pizza(valores, itens, titulo)
 
  
         
@@ -519,3 +541,235 @@ def relatorio_competencia(request):
         'grafico': grafico,	
     }
     return render(request, 'gestor_contas/relatorio_competencia.html', context)
+
+def contas_pagas(request):
+    logger.info('Entrou na função contas_pagas')
+    competencias = Competencia.objects.all()
+    contas =  Conta.objects.all()
+
+    if request.method == 'POST':
+        logger.info('Entrou no if do POST')
+        competencia_select = request.POST.get('competencia')
+        logger.info(f'Competencia selecionada: {competencia_select}')
+        if competencia_select != 'False':
+            competencia = Competencia.objects.get(id=competencia_select)
+        else:
+            competencia = False
+
+        conta_select = request.POST.get('conta')
+        logger.info(f'Conta selecionada: {conta_select}')
+        if conta_select != 'False':
+            conta = Conta.objects.get(id=conta_select)
+        else:
+            conta = False
+
+
+        if competencia:
+            if conta:
+                contas_pagas = ContaPaga.objects.filter(competencia=competencia, conta=conta)
+            else:
+                contas_pagas = ContaPaga.objects.filter(competencia=competencia)
+        else:
+            contas_pagas = ContaPaga.objects.filter(conta=conta)
+        
+        ids_contas_pagas = [conta_paga.id for conta_paga in contas_pagas]
+
+
+        #calcula o valor tota ja pago
+        if competencia_select == 'False':
+            parcelamento = Parcelamento.objects.filter(conta_paga_id__in=ids_contas_pagas)
+            if parcelamento:
+                valor_total_pago = 0
+                parcelamentoa_totais = {}
+                for parcela in parcelamento:
+                    valor_total_pago += parcela.valor_pago
+
+                parcelamentoa_totais['total_pago']= valor_total_pago
+                parcelamentoa_totais['parcelas_pagas'] = parcelamento.count() 
+            else:
+                parcelamentoa_totais = False
+        else:
+            parcelamento = False
+            parcelamentoa_totais = False
+
+    else:
+        contas_pagas = False
+        parcelamento = False
+        parcelamentoa_totais = False
+
+    context ={
+        'submenu': geraSubMenu('pagamentos'),
+        'title': 'Contas Pagas',
+        'competencias': competencias,
+        'contas': contas,
+        'contas_pagas': contas_pagas, 
+        'parcelamento': parcelamento,
+        'parcelamentoa_totais': parcelamentoa_totais,
+    }
+
+    return render(request, 'gestor_contas/contas_pagas.html', context)
+
+def cadastra_tag(request):
+    form = TagsForm(request.POST or None)
+    tags = Tags.objects.all()
+    print(tags)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, 'Tag cadastrada com sucesso')
+                return redirect('gestor_contas:cadastra_tag')
+            except Exception as e:
+                logger.error(f'Erro ao cadastrar tag: {e}')
+                messages.error(request, 'Erro ao cadastrar tag')
+                return redirect('gestor_contas:cadastra_tag')
+
+    context = {
+        'submenu': geraSubMenu('cadastros'),
+        'title': 'Cadastro de Tags',
+        'form': form,
+        'tags': tags,
+    }
+
+    return render(request, 'gestor_contas/cadastra_tag.html', context)
+
+def gastos_gerais(request):
+
+    form = GastosGeraisForm()
+
+    if request.method == 'POST':
+        form = GastosGeraisForm(request.POST)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, 'Gasto cadastrado com sucesso')
+                return redirect('gestor_contas:gastos_gerais')
+            except Exception as e:
+                logger.error(f'Erro ao cadastrar gasto geral: {e}')
+                messages.error(request, 'Erro ao cadastrar gasto geral')
+                return redirect('gestor_contas:gastos_gerais')
+
+    context = {
+        'submenu': geraSubMenu('gastos_gerais'),
+        'title': 'Gastos Gerais',
+        'form': form,
+    }
+
+    return render(request, 'gestor_contas/gastos_gerais.html', context)
+
+def gastos_gerais_relat(request):
+
+    def buscas_gastos(competencia_select, tag_select, pessoa_select):
+        if competencia_select:
+            if tag_select:
+                if pessoa_select:
+                    gastos_gerais = GastosGerais.objects.filter(competencia=competencia_select, tags=tag_select, pessoa=pessoa_select).order_by('data_compra')
+                else:
+                    gastos_gerais = GastosGerais.objects.filter(competencia=competencia_select, tags=tag_select).order_by('data_compra')
+            else:
+                if pessoa_select:
+                    gastos_gerais = GastosGerais.objects.filter(competencia=competencia_select, pessoa=pessoa_select).order_by('data_compra')
+                else:
+                    gastos_gerais = GastosGerais.objects.filter(competencia=competencia_select).order_by('data_compra')
+        else: 
+                if tag_select:
+                    if pessoa_select:
+                        gastos_gerais = GastosGerais.objects.filter(tags=tag_select, pessoa=pessoa_select).order_by('data_compra')
+                    else:
+                        gastos_gerais = GastosGerais.objects.filter(tags=tag_select).order_by('data_compra')
+                else:
+                    if pessoa_select:
+                        gastos_gerais = GastosGerais.objects.filter(pessoa=pessoa_select).order_by('data_compra')
+        return gastos_gerais
+
+    competencias = Competencia.objects.all()
+    tags = Tags.objects.all()
+    pessoas = Pessoa.objects.all()
+
+    if request.method == 'POST':
+        try:
+            competencia_select = get_object_or_404(Competencia, id=request.POST.get('competencia'))    
+        except:
+            competencia_select = False
+        try:
+            tag_select = get_object_or_404(Tags, id=request.POST.get('tag'))
+        except:
+            tag_select = False
+        
+        try:
+            pessoa_select = get_object_or_404(Pessoa, id=request.POST.get('pessoa'))
+        except:
+            pessoa_select = False
+        
+        # if competencia_select:
+        #     if tag_select:
+        #         if pessoa_select:
+        #             gastos_gerais = GastosGerais.objects.filter(competencia=competencia_select, tags=tag_select, pessoa=pessoa_select)
+        #         else:
+        #             gastos_gerais = GastosGerais.objects.filter(competencia=competencia_select, tags=tag_select)
+        #     else:
+        #         if pessoa_select:
+        #             gastos_gerais = GastosGerais.objects.filter(competencia=competencia_select, pessoa=pessoa_select)
+        #         else:
+        #             gastos_gerais = GastosGerais.objects.filter(competencia=competencia_select)
+        # else: 
+        #         if tag_select:
+        #             if pessoa_select:
+        #                 gastos_gerais = GastosGerais.objects.filter(tags=tag_select, pessoa=pessoa_select)
+        #             else:
+        #                 gastos_gerais = GastosGerais.objects.filter(tags=tag_select)
+        #         else:
+        #             if pessoa_select:
+        #                 gastos_gerais = GastosGerais.objects.filter(pessoa=pessoa_select)
+
+        gastos_gerais = buscas_gastos(competencia_select, tag_select, pessoa_select)
+
+                    
+        total = 0
+        valores =[]
+        itens = []
+
+        all_tags = Tags.objects.all()
+        print("Nomes das Tags:")
+        for tag in all_tags: # Itera sobre cada tag
+            nome_tag = tag.nome
+            tagvalor = 0
+
+            for gastos in gastos_gerais: # Itera sobre cada gasto
+                total += gastos.valor
+                for tag_gasto in gastos.tags.all(): # Itera sobre cada tag do gasto
+                    if tag_gasto.nome == tag.nome:
+                       tagvalor += gastos.valor
+
+            if tagvalor > 0:
+                itens.append(nome_tag)
+                valores.append(tagvalor)
+                        
+                                     
+        print(valores)
+        print(itens)
+
+        grafico = grafico_pizza(valores, itens, 'Gastos por tags', )
+        
+
+    else:
+        gastos_gerais = False
+        total = False
+        grafico = False
+
+
+
+    context = {
+        'submenu': geraSubMenu('gastos_gerais'),
+        'title': 'Relatório de Gastos Gerais',
+        'competencias': competencias,
+        'tags': tags,
+        'gastos_gerais': gastos_gerais,
+        'total': total,
+        'grafico': grafico,
+        'pessoas': pessoas,
+
+    }
+
+    return render(request, 'gestor_contas/gastos_gerais_relat.html', context)

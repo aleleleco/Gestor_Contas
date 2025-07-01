@@ -140,6 +140,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+EXTERNAL_FILES_ROOT = 'C:/Users/PC-Leleco/Dropbox/Pessoal/ContasPagas'
 
 PATH_LOG = os.getenv('PATH_LOG', 'logs') 
 NIVEL_LOG = os.getenv('NIVEL_LOG', 'DEBUG')

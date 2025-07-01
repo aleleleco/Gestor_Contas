@@ -1,16 +1,24 @@
-from .models import Submenu, Competencia, ContaPaga
+from .models import Submenu, Competencia, ContaPaga, Parcelamento
 import matplotlib.pyplot as plt
 import os
 from django.conf import settings
 import numpy as np
 import logging  
 
+import matplotlib
+matplotlib.use('Agg')  # Use backend não-interativo
+
+import numpy as np
+
 logger = logging.getLogger(__name__)
 
 
 def geraSubMenu(pagina):
     submenu = Submenu.objects.filter(pagina=pagina)
-
+    # for submenu_item in submenu:
+    #     print(submenu_item.nome)
+    #     print(submenu_item.url)
+    #     print(submenu_item.pagina)
 
     return submenu
 
@@ -89,8 +97,10 @@ def grafico_pizza(valores, itens, title, nome_arquivo="grafico_pizza.png"):
     """
     try:
         # 1. Criar a figura e os eixos
-        plt.figure(figsize=(8, 8)) # Define o tamanho da figura (geralmente quadrado para pizza)
-        plt.pie(valores, labels=itens, autopct='%1.1f%%', startangle=140)
+        plt.figure(figsize=(10,10 )) # Define o tamanho da figura (geralmente quadrado para pizza)
+        plt.pie(valores, labels=itens, autopct='%1.1f%%', startangle=110, pctdistance=0.85, radius=1.2)
+        #plt.pie(valores, labels=itens, autopct=lambda pct: func_autopct('%1.1f%%', valores), startangle=140)
+
         #   - valores: os tamanhos de cada fatia.
         #   - labels: os rótulos de cada fatia.
         #   - autopct: formato para exibir as porcentagens em cada fatia.
@@ -218,3 +228,25 @@ def salvar_comprovante_externo(data_pagamento, comprovante_file):
     except Exception as e:
         logger.error(f"Erro inesperado ao salvar o arquivo: {e}")
         return None
+    
+def gera_parcelas(conta_paga):
+    parcelas_pagas = Parcelamento.objects.filter(conta_id = conta_paga.conta)
+    parcela = Parcelamento()
+
+    if parcelas_pagas.count() >= 1:
+        parcela.parcela_nr = parcelas_pagas.count() + 1
+    else:
+        parcela.parcela_nr = 1
+
+    parcela.parcelas_totais = conta_paga.conta.qtd_parcelas
+    parcela.valor_pago = conta_paga.valor_pago
+    parcela.valor_total = conta_paga.conta.valor_total
+    parcela.conta_id = conta_paga.conta
+    parcela.conta_paga_id = conta_paga
+
+    try:
+        parcela.save()
+        return True
+    except Exception as e:
+        logger.error(f"Erro ao salvar a parcela: {e}")
+        return False

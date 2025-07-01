@@ -16,14 +16,22 @@
             Pagamentos
         </a>
     </div>
-        <div class="dropdown">
-        <a href="{% url 'gestor_contas:consultas' %}" class="list-group-item list-group-item-action {% if request.path == '/consultas/' %}active{% endif %}">
-            Consultas
-        </a>
-    </div>
+        
     <div class="dropdown">
         <a href="{% url 'gestor_contas:relatorios' %}" class="list-group-item list-group-item-action {% if request.path == '/relatorios/' %}active{% endif %}">
             Relatórios	
+        </a>
+    </div>
+    <div class="dropdown">
+        
+        <a href="{% url 'gestor_contas:contas_pagas' %}" class="list-group-item list-group-item-action {% if request.path == '/contas_pagas/' %}active{% endif %}">
+            Contas Pagas	
+        </a>
+    </div>
+        <div class="dropdown">
+        
+        <a href="{% url 'gestor_contas:gastos_gerais' %}" class="list-group-item list-group-item-action {% if request.path == '/gastos_gerais/' %}active{% endif %}">
+            Gastos Gerais	
         </a>
     </div>
 

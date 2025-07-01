@@ -35,7 +35,7 @@
                                     <td>{{ conta.nome }}</td>
                                     <td>{{ conta.data_vencimento }}</td>
                                     <td>{{ conta.observacoes|default_if_none:"-" }}</td>
-                                    <td>{% if conta.mensal %}Mensal{%else%}Exporádica{%endif%}</td>   
+                                    <td>{% if conta.mensal %}Mensal{%else%}Exporádica{%endif%}{%if conta.parcelas %} - Parcelada{%endif%}</td>   
                                     <td>
                                         
                                             <form method="post" action="{% url 'gestor_contas:altera_status' conta.id %}" style="display: inline;">

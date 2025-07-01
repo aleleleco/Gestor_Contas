@@ -2,6 +2,14 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
+class Parcelamento(models.Model):
+    parcelas_totais = models.IntegerField()
+    parcela_nr = models.IntegerField()
+    valor_pago = models.DecimalField(max_digits=12, decimal_places=2)
+    valor_total = models.DecimalField(max_digits=12, decimal_places=2)
+    conta_id = models.ForeignKey('Conta', on_delete=models.CASCADE)
+    conta_paga_id = models.ForeignKey('ContaPaga', on_delete=models.CASCADE)
+    
 class Competencia(models.Model):
     MESES_DO_ANO = [
         ('1', 'Janeiro'),
@@ -41,6 +49,9 @@ class Conta(models.Model):
     ativa = models.BooleanField(default=True)
     mensal = models.BooleanField(default=False)
     subvalor = models.BooleanField(default=False)
+    parcelas = models.BooleanField(default=False)
+    qtd_parcelas = models.IntegerField(null=True, blank=True)
+    valor_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
 
 
     def __str__(self):
@@ -81,10 +92,43 @@ class Subvalores(models.Model):
         return f'{self.nome}, subvalor de {self.conta.nome}'
 
 class Submenu(models.Model):
+
     nome = models.CharField(max_length=100)
     url = models.CharField(max_length=100)
     icone = models.CharField(max_length=50)
     pagina = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.nome
+
+class Tags(models.Model):
+    nome = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{self.nome}'
+
+class Pessoa(models.Model):
+    nome = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{self.nome}'
+    
+class TipoPagamento(models.Model):
+    nome = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{self.nome}'
+
+class GastosGerais(models.Model):
+    nome = models.CharField(max_length=255)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    data_compra = models.DateField()
+    observacoes = models.TextField(null=True, blank=True)
+    tags = models.ManyToManyField(Tags, blank=True)
+    pessoa = models.ForeignKey(Pessoa, on_delete=models.SET_NULL, null=True, blank=True)
+    tipo_pagamento = models.ForeignKey(TipoPagamento, on_delete=models.SET_NULL, null=True, blank=True)
+    contabiliza = models.BooleanField(default=True)
+    competencia = models.ForeignKey(Competencia, on_delete=models.SET_NULL, null=True, blank=True)
+    
     def __str__(self):
         return self.nome
